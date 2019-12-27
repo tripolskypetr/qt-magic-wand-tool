@@ -19,6 +19,8 @@
 #include <QLabel>
 #include <QMenu>
 
+#include "area.h"
+
 namespace MagicWandTool {
 
 /*****************************************************************************/
@@ -32,7 +34,7 @@ class MainWindow : public QMainWindow {
     QAction *actionUndo;
     QAction *actionRedo;
   private:
-    QLabel* area;
+    Area* area;
   private:
     int r = 0;
     int g = 0;
@@ -49,6 +51,7 @@ class MainWindow : public QMainWindow {
     void gChanged(int g);
     void bChanged(int b);
     void sensitivityChanged(int sensitivity);
+    void clickHandler(QPoint point);
 };
 #endif // MAINWINDOW_H
 

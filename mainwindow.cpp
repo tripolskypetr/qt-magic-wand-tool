@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
     actionUndo = new QAction(this);
     actionRedo = new QAction(this);
     setupUi(this);
+    actionUndo->setEnabled(false);
+    actionRedo->setEnabled(false);
+    actionSave->setEnabled(false);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -33,7 +36,7 @@ int MainWindow::exec(int argc, char **argv) {
 /*---------------------------------------------------------------------------*/
 
 void MagicWandTool::MainWindow::setupUi(QMainWindow *MainWindow) {
-    MainWindow->resize(688, 600);
+    MainWindow->resize(490, 315);
     QWidget* centralwidget = new QWidget(MainWindow);
     QHBoxLayout* horizontalLayout = new QHBoxLayout(centralwidget);
     QFrame* frame = new QFrame(centralwidget);
@@ -137,9 +140,7 @@ void MagicWandTool::MainWindow::setupUi(QMainWindow *MainWindow) {
     frame_2->setFrameShadow(QFrame::Raised);
     QVBoxLayout* verticalLayout_5 = new QVBoxLayout(frame_2);
     verticalLayout_5->setContentsMargins(0, 0, 0, 0);
-    area = new QLabel(frame_2);
-    area->setFrameShape(QFrame::Box);
-    area->setAlignment(Qt::AlignCenter);
+    area = new Area(frame_2);
     verticalLayout_5->addWidget(area);
     horizontalLayout->addWidget(frame_2);
     MainWindow->setCentralWidget(centralwidget);
@@ -170,14 +171,22 @@ void MagicWandTool::MainWindow::setupUi(QMainWindow *MainWindow) {
     groupBox_2->setTitle("Actions");
     pushButton->setText("Undo");
     pushButton_2->setText("Redo");
-    area->setText("Please open file to continue");
     menuFile->setTitle("File");
     menuEdit->setTitle("Edit");
+    connect(pushButton, &QPushButton::clicked, actionUndo, &QAction::trigger);
+    connect(pushButton_2, &QPushButton::clicked, actionRedo, &QAction::trigger);
     connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(rChanged(int)));
     connect(spinBox_2, SIGNAL(valueChanged(int)), this, SLOT(gChanged(int)));
     connect(spinBox_3, SIGNAL(valueChanged(int)), this, SLOT(bChanged(int)));
+    connect(area, SIGNAL(click(QPoint)), this, SLOT(clickHandler(QPoint)));
     connect(horizontalSlider, &QSlider::valueChanged, [label_4](int v) {
        label_4->setText(QVariant(v).toString());
+    });
+    connect(actionUndo, &QAction::changed, [pushButton](){
+       pushButton->setEnabled(!pushButton->isEnabled());
+    });
+    connect(actionRedo, &QAction::changed, [pushButton_2](){
+       pushButton_2->setEnabled(!pushButton_2->isEnabled());
     });
     connect(
         horizontalSlider,
@@ -213,6 +222,12 @@ void MainWindow::bChanged(int b) {
 void MainWindow::sensitivityChanged(int sensitivity) {
     qDebug() << "sensitivityChanged" << sensitivity;
     this->sensitivity = sensitivity;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MainWindow::clickHandler(QPoint point) {
+    qDebug() << "MainWindow clickHandler";
 }
 
 /*****************************************************************************/
