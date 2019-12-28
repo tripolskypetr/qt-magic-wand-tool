@@ -94,6 +94,8 @@ class MainWindow : public QMainWindow {
     void clickHandler(QPoint point);
   private slots:
     void openHandler();
+    void undoHandler();
+    void redoHandler();
 };
 #endif // MAINWINDOW_H
 

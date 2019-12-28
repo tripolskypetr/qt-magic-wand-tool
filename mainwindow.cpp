@@ -88,7 +88,6 @@ void Worker::fill(QPoint point) {
         return;
     } else if (compare(templColor, pointColor)) {
         ignore.insert(point);
-        qDebug() << point.x() << point.y();
         image.setPixelColor(point.x(), point.y(), fillColor);
         QList<QPoint> bounding = border(point);
         QList<QPoint>::iterator iter;
@@ -115,6 +114,9 @@ MainWindow::MainWindow(QWidget *parent)
     actionRedo->setEnabled(false);
     actionSave->setEnabled(false);
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(openHandler()));
+    connect(actionUndo, SIGNAL(triggered()), this, SLOT(undoHandler()));
+    connect(actionRedo, SIGNAL(triggered()), this, SLOT(redoHandler()));
+    connect(actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -362,6 +364,30 @@ void MainWindow::openHandler() {
         msg.setText("It looks like image unavalible");
         msg.exec();
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MainWindow::undoHandler() {
+    qDebug() << "MainWindow undoHandler";
+    redo.push(area->getImage());
+    area->setImage(undo.pop());
+    if (undo.size() == 0) {
+        actionUndo->setEnabled(false);
+    }
+    actionRedo->setEnabled(true);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MainWindow::redoHandler() {
+    qDebug() << "MainWindow redoHandler";
+    undo.push(area->getImage());
+    area->setImage(redo.pop());
+    if (redo.size() == 0) {
+        actionRedo->setEnabled(false);
+    }
+    actionUndo->setEnabled(true);
 }
 
 /*****************************************************************************/
