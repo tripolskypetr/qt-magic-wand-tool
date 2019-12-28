@@ -41,17 +41,41 @@ Area::~Area() {
 void Area::setupUi(QScrollArea* scrollArea) {
     scrollArea->setFrameShape(QFrame::Box);
     scrollArea->setWidgetResizable(true);
-    scrollArea->setAlignment(Qt::AlignCenter);
-    QWidget* areaWidgetContents = new QWidget();
-    areaWidgetContents->setGeometry(QRect(0, 0, 337, 287));
-    QVBoxLayout* verticalLayout = new QVBoxLayout(areaWidgetContents);
+    QWidget* scrollAreaWidgetContents = new QWidget();
+    scrollAreaWidgetContents->setGeometry(QRect(0, 0, 187, 165));
+    QVBoxLayout* verticalLayout = new QVBoxLayout(scrollAreaWidgetContents);
     verticalLayout->setContentsMargins(0, 0, 0, 0);
-    label = new Label(areaWidgetContents);
-    label->setAlignment(Qt::AlignCenter);
-    verticalLayout->addWidget(label);
-    scrollArea->setWidget(areaWidgetContents);
+    QSpacerItem* verticalSpacer = new QSpacerItem(20, 52,
+        QSizePolicy::Minimum,
+        QSizePolicy::Expanding
+    );
+    verticalLayout->addItem(verticalSpacer);
+    QFrame* frame = new QFrame(scrollAreaWidgetContents);
+    frame->setFrameShape(QFrame::NoFrame);
+    frame->setFrameShadow(QFrame::Raised);
+    QHBoxLayout* horizontalLayout = new QHBoxLayout(frame);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
+    QSpacerItem* horizontalSpacer = new QSpacerItem(52, 20,
+        QSizePolicy::Expanding,
+        QSizePolicy::Minimum
+    );
+    horizontalLayout->addItem(horizontalSpacer);
+    label = new Label(frame);
+    horizontalLayout->addWidget(label);
+    QSpacerItem* horizontalSpacer_2 = new QSpacerItem(52, 20,
+        QSizePolicy::Expanding,
+        QSizePolicy::Minimum
+    );
+    horizontalLayout->addItem(horizontalSpacer_2);
+    verticalLayout->addWidget(frame);
+    QSpacerItem* verticalSpacer_2 = new QSpacerItem(20, 52,
+        QSizePolicy::Minimum,
+        QSizePolicy::Expanding
+    );
+    verticalLayout->addItem(verticalSpacer_2);
+    scrollArea->setWidget(scrollAreaWidgetContents);
     label->setText("Please open file to continue");
-    connect(label, &Label::click, [this](QPoint point){
+    connect(label, &Label::click, [this](QPoint point) {
        if (opened) {
            emit click(point);
        }
@@ -65,6 +89,7 @@ void Area::setImage(QImage image) {
     this->image = image;
     label->setMaximumSize(image.size());
     label->setMinimumSize(image.size());
+    label->setPixmap(QPixmap::fromImage(image));
     opened = true;
 }
 

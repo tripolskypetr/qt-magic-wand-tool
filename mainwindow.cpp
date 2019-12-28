@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     actionUndo->setEnabled(false);
     actionRedo->setEnabled(false);
     actionSave->setEnabled(false);
+    connect(actionOpen, SIGNAL(triggered()), this, SLOT(openHandler()));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -182,10 +183,10 @@ void MagicWandTool::MainWindow::setupUi(QMainWindow *MainWindow) {
     connect(horizontalSlider, &QSlider::valueChanged, [label_4](int v) {
        label_4->setText(QVariant(v).toString());
     });
-    connect(actionUndo, &QAction::changed, [pushButton](){
+    connect(actionUndo, &QAction::changed, [pushButton]() {
        pushButton->setEnabled(!pushButton->isEnabled());
     });
-    connect(actionRedo, &QAction::changed, [pushButton_2](){
+    connect(actionRedo, &QAction::changed, [pushButton_2]() {
        pushButton_2->setEnabled(!pushButton_2->isEnabled());
     });
     connect(
@@ -228,6 +229,31 @@ void MainWindow::sensitivityChanged(int sensitivity) {
 
 void MainWindow::clickHandler(QPoint point) {
     qDebug() << "MainWindow clickHandler";
+}
+
+/*---------------------------------------------------------------------------*/
+
+void MainWindow::openHandler() {
+    qDebug() << "MainWindow openHandler";
+    QString path = QFileDialog::getOpenFileName(this, "", "", "*.png *.jpg");
+    QFile file(path);
+    QImage tmp;
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox msg;
+        msg.setText("It looks like image inaccessible");
+        msg.exec();
+    } else if (tmp.loadFromData(file.readAll())) {
+        actionUndo->setEnabled(false);
+        actionRedo->setEnabled(false);
+        area->setImage(tmp);
+        undo.clear();
+        redo.clear();
+        qDebug() << "image loaded";
+    } else {
+        QMessageBox msg;
+        msg.setText("It looks like image unavalible");
+        msg.exec();
+    }
 }
 
 /*****************************************************************************/

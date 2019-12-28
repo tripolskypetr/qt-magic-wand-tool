@@ -7,6 +7,8 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QVBoxLayout>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QGroupBox>
 #include <QVariant>
 #include <QSlider>
@@ -17,6 +19,7 @@
 #include <QAction>
 #include <QFrame>
 #include <QLabel>
+#include <QStack>
 #include <QMenu>
 
 #include "area.h"
@@ -33,6 +36,9 @@ class MainWindow : public QMainWindow {
     QAction *actionExit;
     QAction *actionUndo;
     QAction *actionRedo;
+  private:
+    QStack<QImage> undo;
+    QStack<QImage> redo;
   private:
     Area* area;
   private:
@@ -52,6 +58,8 @@ class MainWindow : public QMainWindow {
     void bChanged(int b);
     void sensitivityChanged(int sensitivity);
     void clickHandler(QPoint point);
+  private slots:
+    void openHandler();
 };
 #endif // MAINWINDOW_H
 

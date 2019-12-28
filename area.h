@@ -2,6 +2,7 @@
 #define AREA_H
 
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QScrollArea>
 #include <QObject>
