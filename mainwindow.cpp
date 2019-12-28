@@ -4,6 +4,104 @@ namespace MagicWandTool {
 
 /*****************************************************************************/
 
+Worker::Worker(QImage image) {
+    qDebug() << "Worker ctor";
+    this->image = image;
+}
+
+/*---------------------------------------------------------------------------*/
+
+Worker::~Worker() {
+    qDebug() << "Worker dtor";
+}
+
+/*---------------------------------------------------------------------------*/
+
+QImage Worker::click(QColor fillColor, QPoint point, int sensitivity) {
+    this->templColor = QColor(image.pixel(point.x(), point.y()));
+    this->sensitivity = sensitivity;
+    this->fillColor = fillColor;
+    fill(point);
+    return image;
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool Worker::inRange(QPoint point) {
+    int x = point.x();
+    int y = point.y();
+    if (x < 0 || x >= image.width()) {
+      return false;
+    } else if (y < 0 || y >= image.height()) {
+      return false;
+    } else {
+      return true;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool Worker::compare(QColor a, QColor b) {
+    int da = a.red() + a.green() + a.blue();
+    int db = b.red() + b.green() + b.blue();
+    return qAbs(da - db) <= sensitivity;
+}
+
+/*---------------------------------------------------------------------------*/
+
+QList<QPoint> Worker::border(QPoint point) {
+    QList<QPoint> dots;
+    int x = point.x();
+    int y = point.y();
+    if (inRange(QPoint(x-1,y-1))) {
+        dots.append(QPoint(x-1,y-1));
+    }
+    if (inRange(QPoint(x-1,y))) {
+        dots.append(QPoint(x-1,y));
+    }
+    if (inRange(QPoint(x-1,y+1))) {
+        dots.append(QPoint(x-1,y+1));
+    }
+    if (inRange(QPoint(x,y+1))) {
+        dots.append(QPoint(x,y+1));
+    }
+    if (inRange(QPoint(x,y-1))) {
+        dots.append(QPoint(x,y-1));
+    }
+    if (inRange(QPoint(x+1,y))) {
+        dots.append(QPoint(x+1,y));
+    }
+    if (inRange(QPoint(x+1,y+1))) {
+        dots.append(QPoint(x+1,y+1));
+    }
+    if (inRange(QPoint(x+1,y-1))) {
+        dots.append(QPoint(x+1,y-1));
+    }
+    return dots;
+}
+
+/*---------------------------------------------------------------------------*/
+
+void Worker::fill(QPoint point) {
+    QColor pointColor = QColor(image.pixel(point));
+    if (ignore.contains(point)) {
+        return;
+    } else if (compare(templColor, pointColor)) {
+        ignore.insert(point);
+        qDebug() << point.x() << point.y();
+        image.setPixelColor(point.x(), point.y(), fillColor);
+        QList<QPoint> bounding = border(point);
+        QList<QPoint>::iterator iter;
+        for (iter = bounding.begin(); iter != bounding.end(); iter++) {
+            fill(*iter);
+        }
+    } else {
+        return;
+    }
+}
+
+/*****************************************************************************/
+
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent) {
     qDebug() << "MainWindow ctor";
@@ -229,6 +327,16 @@ void MainWindow::sensitivityChanged(int sensitivity) {
 
 void MainWindow::clickHandler(QPoint point) {
     qDebug() << "MainWindow clickHandler";
+    undo.push(area->getImage());
+    redo.clear();
+    actionUndo->setEnabled(true);
+    actionRedo->setEnabled(false);
+    Worker worker(area->getImage());
+    area->setImage(worker.click(
+        QColor(r, g, b),
+        point,
+        sensitivity
+    ));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -237,15 +345,15 @@ void MainWindow::openHandler() {
     qDebug() << "MainWindow openHandler";
     QString path = QFileDialog::getOpenFileName(this, "", "", "*.png *.jpg");
     QFile file(path);
-    QImage tmp;
+    QImage image;
     if (!file.open(QIODevice::ReadOnly)) {
         QMessageBox msg;
         msg.setText("It looks like image inaccessible");
         msg.exec();
-    } else if (tmp.loadFromData(file.readAll())) {
+    } else if (image.loadFromData(file.readAll())) {
         actionUndo->setEnabled(false);
         actionRedo->setEnabled(false);
-        area->setImage(tmp);
+        area->setImage(image);
         undo.clear();
         redo.clear();
         qDebug() << "image loaded";

@@ -39,8 +39,9 @@ class Area: public QScrollArea {
     virtual ~Area();
   private:
     void setupUi(QScrollArea *area);
-  public slots:
+  public:
     void setImage(QImage image);
+    const QImage getImage();
   signals:
     void click(QPoint point);
 };

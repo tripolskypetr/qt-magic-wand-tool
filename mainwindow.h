@@ -24,10 +24,44 @@
 
 #include "area.h"
 
+/*****************************************************************************/
+
+inline uint qHash (const QPoint & key)
+{
+    return qHash (QPair<int,int>(key.x(), key.y()) );
+}
+
+/*****************************************************************************/
+
 namespace MagicWandTool {
 
 /*****************************************************************************/
 
+class Worker {
+  private:
+    QSet<QPoint> ignore;
+    QColor templColor;
+    QColor fillColor;
+    int sensitivity;
+    QImage image;
+  public:
+    Worker(QImage image);
+    ~Worker();
+    QImage click(QColor color, QPoint point, int sensitivity = 25);
+  private:
+    bool inRange(QPoint point);
+    bool compare(QColor a, QColor b);
+    QList<QPoint> border(QPoint point);
+  private:
+    void fill(QPoint point);
+};
+
+/*****************************************************************************/
+
+/*
+ * x -> width
+ * y -> height
+ */
 class MainWindow : public QMainWindow {
   Q_OBJECT
   private:
